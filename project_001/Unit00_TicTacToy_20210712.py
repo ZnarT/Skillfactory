@@ -47,10 +47,6 @@
 # 
 #       1. Некорректное отображение вывода в терминале VS Code 
 #          при исполнении программы с расширением .ipunb
-
-# In[ ]:
-
-
 #----------------------------------------------------------------------#
 def game_core():
     '''Функция запускает игру крестики-нолики.'''
@@ -121,7 +117,7 @@ def game_core():
         field[y].insert(x, sign)
         
         
-        # Показать игровое поле и оси 'X' и 'Y'
+        # Показать обновлённое игровое поле и оси 'X' и 'Y'
         print_field(field)
         
         # Поиск победной комбинации
@@ -143,7 +139,8 @@ def check_win_area(field,x,y,ox,oy):
     '''
     sign = field[y][x]
     
-    # Находим область возможной победы для горизонтали и вертикали
+    # Определяем границы области, где возможна выигрышная комбинация
+    # (линия) из знаков для горизонтали и вертикали
     x_min = 1 if x-2 <= 1 else x-2
     x_max = ox if x+2 > ox else x+2
     
@@ -160,8 +157,9 @@ def check_win_area(field,x,y,ox,oy):
                    y_min,y_max,
                    y_min,1,
                    x,0): return True
-    
-    # Находим область возможной победы для убывающей диагонали
+
+    # Определяем границы области, где возможна выигрышная комбинация
+    # (линия) из знаков для убывающей диагонали
     delta_start = x-x_min if x-x_min <= y-y_min else y-y_min
     delta_finish = x_max-x if x_max-x <= y_max-y else y_max-y
 
@@ -170,8 +168,9 @@ def check_win_area(field,x,y,ox,oy):
                    x-delta_start,x+delta_finish,
                    y-delta_start,1,
                    x-delta_start,1): return True
-    
-    # Находим область возможной победы для растущей диагонали
+
+    # Определяем границы области, где возможна выигрышная комбинация
+    # (линия) из знаков для растущей диагонали
     delta_start = y_max-y if y_max-y <= x-x_min else x-x_min
     delta_finish = y-y_min if y-y_min <= x_max-x else x_max-x
 
@@ -187,7 +186,7 @@ def count_signs(sign,field,
                 range_start,range_finish,
                 y_start,y_changer,
                 x_start,x_changer):
-    '''Функция ищет победную комбинацию в заданной области.'''
+    '''Функция ищет выигрышную комбинацию в заданной области.'''
     
     count = 0
     
@@ -206,4 +205,3 @@ def count_signs(sign,field,
     return False   
 #---------------- START GAME ------------------------------------------#
 game_core()
-
