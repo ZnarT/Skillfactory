@@ -60,7 +60,12 @@ def game_core():
 
     '''Создание игрового поля'''
     # Определение осей координат
-    ox,oy = 3,3
+    # ox,oy = 3,3
+    ox,oy = set_field_size()
+
+    # Определение длины выигрышной комбинации
+    max_len = ox if ox >= oy else oy
+    win_combo = max_len if max_len <= 5 else 5
     
     # Создание пустого поля
     field = [["•" for x in range(ox)] for y in range(oy)]
@@ -121,7 +126,7 @@ def game_core():
         print_field(field)
         
         # Поиск победной комбинации
-        if check_win_area(field,x,y,ox,oy):
+        if check_win_area(field,x,y,ox,oy,win_combo):
             return print(f"{active_player} победил!")
 
 
@@ -133,7 +138,7 @@ def print_field(field):
     # Отображение игрового поля, осей 'X' и 'Y' и хода игрока
     for y in range(len(field)): print(*field[y], sep=' ')
 
-def check_win_area(field,x,y,ox,oy):
+def check_win_area(field,x,y,ox,oy,win_combo):
     '''Функция определяет область, 
     в которой есть возможно обнаружить победную комбинацию.
     '''
@@ -141,19 +146,19 @@ def check_win_area(field,x,y,ox,oy):
     
     # Определяем границы области, где возможна выигрышная комбинация
     # (линия) из знаков для горизонтали и вертикали
-    x_min = 1 if x-2 <= 1 else x-2
-    x_max = ox if x+2 > ox else x+2
+    x_min = 1 if x-(win_combo-1) <= 1 else x-(win_combo-1)
+    x_max = ox if x+(win_combo-1) > ox else x+(win_combo-1)
     
-    y_min = 1 if y-2 <= 1 else y-2
-    y_max = oy if y+2 > oy else y+2
+    y_min = 1 if y-(win_combo-1) <= 1 else y-(win_combo-1)
+    y_max = oy if y+(win_combo-1) > oy else y+(win_combo-1)
     
     # Считаем знаки по горизонтали
-    if count_signs(sign,field,
+    if count_signs(sign,field,win_combo,
                    x_min,x_max,
                    y,0,
                    x_min,1): return True
     # Считаем знаки по вертикали
-    if count_signs(sign,field,
+    if count_signs(sign,field,win_combo,
                    y_min,y_max,
                    y_min,1,
                    x,0): return True
@@ -164,7 +169,7 @@ def check_win_area(field,x,y,ox,oy):
     delta_finish = x_max-x if x_max-x <= y_max-y else y_max-y
 
     # Считаем знаки по убывающей диагонали
-    if count_signs(sign,field,
+    if count_signs(sign,field,win_combo,
                    x-delta_start,x+delta_finish,
                    y-delta_start,1,
                    x-delta_start,1): return True
@@ -175,14 +180,14 @@ def check_win_area(field,x,y,ox,oy):
     delta_finish = y-y_min if y-y_min <= x_max-x else x_max-x
 
     # Считаем знаки по растущей диагонали
-    if count_signs(sign,field,
+    if count_signs(sign,field,win_combo,
                    x-delta_start,x+delta_finish,
                    y+delta_start,-1,
                    x-delta_start,1): return True   
 
     return False
 
-def count_signs(sign,field,
+def count_signs(sign,field,win_combo,
                 range_start,range_finish,
                 y_start,y_changer,
                 x_start,x_changer):
@@ -194,7 +199,7 @@ def count_signs(sign,field,
         
         if field[y_start][x_start] == sign:
             count += 1 
-            if count == 3:
+            if count == win_combo:
                 return True
         else:
             count = 0
@@ -202,6 +207,27 @@ def count_signs(sign,field,
         y_start += y_changer
         x_start += x_changer
 
-    return False   
+    return False 
+
+def set_field_size():
+    '''Через данную функцию задают размер и форму игрового поля'''
+
+    print("Размери поля не может быть меньше 3х3 и больше 10х10. \n",
+          "Укажите размер игрового поля в клетках через запятую X, Y:", end = " ")
+
+    # Просим игрока ввести размер поля до тех пор, 
+    # пока не введёт допустимый размер поля
+    while True:
+
+        ox, oy = map(int, input().split(","))
+        
+        # Проверка значений введённых игроком
+        if not (3 <= ox <= 10) or not (3 <= oy <= 10):
+            print("Вы указали недопустимый размер поля",
+                    "Введите другие размеры:", end = " ")
+        else: break
+
+    return ox, oy  
+
 #---------------- START GAME ------------------------------------------#
 game_core()
